@@ -1,0 +1,1980 @@
+<html>
+
+<head>
+	<title>Airport - (ICN) Incheon International. Departures and Arrivals. Flight Status in details. </title>
+<link rel="icon" type="image/png" href="Airplane-icon.png" />
+
+	<head>
+  <meta charset="utf-8">
+  <title>font-style</title>
+  <style>
+   h1 {
+    font-family: Verdana, Arial, Helvetica, sans-serif; /* Рубленый шрифт заголовка */
+   } 
+   p {
+    font-family: 'Times New Roman', Times, serif; /* Шрифт с засечками */
+    font-style: italic; /* Курсивное начертание */
+   }
+  </style>
+ </head>
+ <body> 
+  <h1>Nikolaeva Dinara, Innopolis University</h1>
+  <p>Impose a board of the airport. On it the following data have to be submitted:
+flight type (departure/arrival; for example it can be an icon);
+number of flight;
+airline;
+logo of airline;
+aircraft type;
+airport of destination;
+planned time of a departure or arrival;
+the status of flight (for the taking off: registration, landing expectation, landing is finished, took off; for the arriving: according to the schedule, flies, I landed; for all: is late to HH:MM, it is cancelled); the note (for example, information about a code Schering with other airlines).
+As a source it is possible to use these online boards of any airport of the world.
+Choose design of registration on the discretion, thus it is necessary to realize the following:
+on guidance of the cursor for a certain place in a board the contrast color allocates the corresponding line and a column;
+odd lines of a board are more dark than the even;
+the number of the displayed data on height is more than height of the screen, when scrolling the heading of the table is pasted to the top part of visible area of a window of the browser;
+at change of width of the screen of the browser in a board values of the least important columns disappear automatically and/or reduced (for example, with a width of 1000 pixels you show all table, with a width of 900 pixels — you clean the name of airline, leaving only a logo, 800 pixels — you reduce the name of the aircraft (Boeing 737-800 B737) and so on);
+in addition to the previous point make so that on a clique on the corresponding line in the coming-up window all data of flight were shown;
+two chekboks over a board: the arrival and a departure, on pressing are shown only the corresponding flights.
+Plus will be if you manage to realize a board without JavaScript.</p>
+ </body>
+
+<!--The the style of a tables -->
+<style type="text/css">
+.primer {
+  border: 1px, solid #456;
+  background: #fff;
+  position: fixed;
+  z-index: 101;
+  width: 100%;
+  top: 0%;
+}
+table, td, th{
+	text-align:center;	
+}
+td, th{
+	position:relative;
+	cursor:pointer;
+}
+th{
+	height:60px;
+}
+thead{	
+}
+td{
+	height:50px;
+}
+table{
+	width:1200px;
+	border-collapse: collapse;
+	overflow:hidden;
+	z-index:1;
+}
+tbody tr:nth-child(2n){
+	background-color:rgba(204, 255, 255,0.5);
+	}
+
+tbody tr:nth-child(2n+1){
+	background-color:rgba(102, 255, 255,0.5);
+}
+
+tbody tr:hover{
+	background-color:rgba(255, 255, 204,0.3);
+}
+
+/*It is necessary make the column highlighted*/
+td:hover::after{
+	content:"";
+	position:absolute;
+	background-color:rgba(255, 255, 153,0.3);
+	left:0;
+	top:-5000px;
+	height:10000px;
+	width:100%;
+	z-index:-1;
+}
+
+.td_content{
+	width: 100%;
+	height:100%;
+	cursor: pointer;
+}
+/*It is necessary for checkboxes for arrival and departure, in order to work properly*/
+.arr{display: none;}
+.dep{display: none;}
+
+
+#arrcheckbox:checked~  table tbody tr.arr{
+	display: table-row;
+}
+
+#depcheckbox:checked~ table tbody tr.dep{
+	display: table-row;
+}
+
+.table_wrapper{
+	width:auto;
+	height: auto;
+
+	margin-right: 3px;
+}
+
+.arr_dep_checkbox_div{
+	float:center;
+	
+}
+/* Styles for all column in the table */
+.airline{
+    width:100px; 
+}
+
+.flight_code{
+	width:100px;
+}
+.airline_logo{
+   width:150px;
+}
+
+.type{
+   width:32px;   
+}
+
+.orig_dest{
+	width: 120px;
+}
+
+.time{
+	width: 150px;
+}
+
+.aircraft_type{
+	width: 150px;
+}
+
+.gate{
+	width:40px;
+}
+
+.Info{
+	text-align: center;
+	width:100px;
+}
+td.flight_code{
+	color: #00FFFF;
+	font-weight: bolder;
+}
+td.orig_dest{
+}
+td.time{
+	width:100px;
+}
+td.aircraft_type{
+	width:100px;
+}
+div.td_content img{
+height: 30px;
+}
+/*CSS for clicks on the table rows*/
+.popup, .popup-checkbox{
+	display: none;
+}
+/* Style for a popup window. position has to be fixed*/
+.popup{ 
+	position: fixed;
+	top:200px;
+	left:700px;
+	border: 1px solid;
+	width: 400px;
+	height: 200px;
+	-webkit-border-radius: 3px; 
+  	-moz-border-radius: 3px; 
+  	border-radius: 3px;
+  	background-color: #DBFFDB;
+  	box-shadow: 0 0 10px rgba(0,0,0,0.5); 
+}
+
+.popup-close{
+	font-size: 16pt;
+	float: right;
+	margin-right: 10px;
+}
+/*Styles for the list in a popup window*/
+ul{
+}
+
+
+/* windows opened when pressed*/
+
+#checkboxID1:checked ~ #popupID1{
+	display: block;
+}
+#checkboxID2:checked ~ #popupID2{
+	display: block;
+}
+#checkboxID3:checked ~ #popupID3{
+	display: block;
+}
+#checkboxID4:checked ~ #popupID4{
+	display: block;
+}
+#checkboxID5:checked ~ #popupID5{
+	display: block;
+}
+#checkboxID6:checked ~ #popupID6{
+	display: block;
+}
+#checkboxID7:checked ~ #popupID7{
+	display: block;
+}
+#checkboxID1:checked ~ #popupID8{
+	display: block;
+}
+#checkboxID2:checked ~ #popupID9{
+	display: block;
+}
+#checkboxID3:checked ~ #popupID10{
+	display: block;
+}
+#checkboxID4:checked ~ #popupID11{
+	display: block;
+}
+#checkboxID5:checked ~ #popupID12{
+	display: block;
+}
+#checkboxID6:checked ~ #popupID13{
+	display: block;
+}
+#checkboxID7:checked ~ #popupID14{
+	display: block;
+}
+#checkboxID1:checked ~ #popupID15{
+	display: block;
+}
+#checkboxID2:checked ~ #popupID16{
+	display: block;
+}
+#checkboxID3:checked ~ #popupID17{
+	display: block;
+}
+#checkboxID4:checked ~ #popupID18{
+	display: block;
+}
+#checkboxID5:checked ~ #popupID19{
+	display: block;
+}
+#checkboxID6:checked ~ #popupID20{
+	display: block;
+}
+/*At change in width of the screen columns are cleaned*/
+@media screen and (max-width: 800px){
+	.flight_code{
+		display: none;
+	}
+}
+
+@media screen and (max-width: 700px){
+	.flight_code{
+		display: none;
+	}
+	.airline{
+		display: none;
+	}
+	.time{
+		display: none;
+	}
+}
+@media screen and (max-width: 600px){
+	.flight_code{
+		display: none;
+	}
+	.airline{
+		display: none;
+	}
+	.time{
+		display: none;
+	}
+	.gate{
+		display: none;
+	}
+}
+</style>
+</head>
+<body>
+<div class="primer">
+  <table>
+  <tr>
+    <th class="airline">Airline</th>
+
+	<th class="airline_logo">Logo</th>
+
+	<th class="flight_code">Flight Code</th>
+
+	<th class="type">Departure / Arrival</th>
+
+	<th class="orig_dest">Origin / Destination</th>
+
+	<th class="time">Departure Time / Planned Arrival</th>
+
+	<th class="aircraft_type">Aircraft Type Code</th>
+
+	<th class="gate">Gate</th>
+
+	<th class="Info">Status / Full Inf.</th>
+  </tr>
+</table>
+</div>
+
+</div>
+
+<div class="table_wrapper">
+
+<input type="checkbox" id="arrcheckbox" checked><label for="arrcheckbox">Arrivals</label>
+<input type="checkbox" id="depcheckbox" checked><label for="depcheckbox">Departure</label>
+
+<table>
+
+	<thead>
+		<tr class="some">
+			<th class="airline">Airline</th>
+
+			<th class="airline_logo">Logo</th>
+
+			<th class="flight_code">Flight Code</th>
+
+			<th class="type">Departure / Arrival</th>
+
+			<th class="orig_dest">Origin / Destination</th>
+
+			<th class="time">Departure Time / Planned Arrival</th>
+
+			<th class="aircraft_type">Aircraft Type Code</th>
+
+			<th class="gate">Gate</th>
+
+			<th class="Info">Status / Full Inf.</th>
+
+		</tr>
+	</thead>
+
+
+
+<!--Everyone contains the class dep or arr. It is necessary when we switching chekbokses and make them disappeared or there were only those lines, which are necessary to us-->
+
+	<tbody>
+		<!--1-->
+		<tr class="dep">
+			<td class="airline">
+				<label for="checkboxID1">
+					<div class="td_content">Singapore Airlines</div>
+				</label>
+			</td>
+
+			<td class="airline_logo">
+				<label for="checkboxID1">
+					<div class="td_content">
+						<img src="http://dem5xqcn61lj8.cloudfront.net/logos/SQ.gif">
+					</div>
+				</label>
+			</td>
+
+			<td class="flight_code">
+				<label for="checkboxID1">
+					<div class="td_content">SQ 603</div>
+				</label>
+			</td>
+
+			<td class="type">
+				<label for="checkboxID1">
+					<div class="td_content">
+						<div class="type_text"><img src="images/transportation.png" width="32" height="32"></div>
+					</div>
+				</label>
+
+			</td>
+			<td class="orig_dest">
+				<label for="checkboxID1">
+					<div class="td_content">Seoul / Singapore</div>
+				</label>
+			</td>
+
+			<td class="time">
+				<label for="checkboxID1">
+					<div class="td_content">12:15 AM - Mon Aug-17-2015</div>
+				</label>
+
+			</td>
+			<td class="aircraft_type">
+				<label for="checkboxID1">
+					<div class="td_content">Airbus A330-300</div>
+				</label>
+			</td>
+
+			<td class="gate">
+				<label for="checkboxID1">
+					<div class="td_content">N/A</div>
+				</label>
+			</td>
+			<td class="Info">
+				<label for="checkboxID1">
+					<div class="td_content"><a href="http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?id=586379493&airline=SQ&flightNumber=603&departureDate=2015-08-17">Scheduled</a></p></div>
+				</label>
+			</td>
+		</tr>
+		<!--2-->
+		<tr class="dep">
+			<td class="airline">
+				<label for="checkboxID2">
+					<div class="td_content">Virgin Australia</div>
+				</label>
+			</td>
+
+			<td class="airline_logo">
+				<label for="checkboxID2">
+					<div class="td_content">
+						<img src="http://dem5xqcn61lj8.cloudfront.net/logos/DJ.gif">
+					</div>
+				</label>
+			</td>
+
+			<td class="flight_code">
+				<label for="checkboxID2">
+					<div class="td_content">VA 5405</div>
+				</label>
+			</td>
+
+			<td class="type">
+				<label for="checkboxID2">
+					<div class="td_content">
+						<div class="type_text"><img src="images/transportation.png" width="32" height="32"></div>
+					</div>
+				</label>
+
+			</td>
+			<td class="orig_dest">
+				<label for="checkboxID2">
+					<div class="td_content">Seoul / Singapore</div>
+				</label>
+			</td>
+
+			<td class="time">
+				<label for="checkboxID2">
+					<div class="td_content">12:15 AM - Mon Aug-17-2015</div>
+				</label>
+
+			</td>
+			<td class="aircraft_type">
+				<label for="checkboxID2">
+					<div class="td_content">Airbus A330-300</div>
+				</label>
+			</td>
+
+			<td class="gate">
+				<label for="checkboxID2">
+					<div class="td_content">N/A</div>
+				</label>
+			</td>
+			<td class="Info">
+				<label for="checkboxID2">
+					<div class="td_content"><a href="http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?id=586379493&airline=VA&flightNumber=5405&departureDate=2015-08-17">Scheduled</a></p></div>
+				</label>
+			</td>
+		</tr>
+		<!--3-->
+		<tr class="dep">
+			<td class="airline">
+				<label for="checkboxID3">
+					<div class="td_content">Asiana Airlines</div>
+				</label>
+			</td>
+
+			<td class="airline_logo">
+				<label for="checkboxID3">
+					<div class="td_content">
+						<img src="http://dem5xqcn61lj8.cloudfront.net/logos/OZ.gif">
+					</div>
+				</label>
+			</td>
+
+			<td class="flight_code">
+				<label for="checkboxID3">
+					<div class="td_content">OZ 6783</div>
+				</label>
+			</td>
+
+			<td class="type">
+				<label for="checkboxID3">
+					<div class="td_content">
+						<div class="type_text"><img src="images/transportation.png" width="32" height="32"></div>
+					</div>
+				</label>
+
+			</td>
+			<td class="orig_dest">
+				<label for="checkboxID3">
+					<div class="td_content">Seoul / Singapore</div>
+				</label>
+			</td>
+
+			<td class="time">
+				<label for="checkboxID3">
+					<div class="td_content">12:15 AM - Mon Aug-17-2015</div>
+				</label>
+
+			</td>
+			<td class="aircraft_type">
+				<label for="checkboxID3">
+					<div class="td_content">Airbus A330-300</div>
+				</label>
+			</td>
+
+			<td class="gate">
+				<label for="checkboxID3">
+					<div class="td_content">N/A</div>
+				</label>
+			</td>
+			<td class="Info">
+				<label for="checkboxID3">
+					<div class="td_content"><a href="http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?id=586379493&airline=OZ&flightNumber=6783&departureDate=2015-08-17">Scheduled</a></p></div>
+				</label>
+			</td>
+		</tr>
+		<!--4-->
+		<tr class="dep">
+			<td class="airline">
+				<label for="checkboxID4">
+					<div class="td_content">Etihad Airways</div>
+				</label>
+			</td>
+
+			<td class="airline_logo">
+				<label for="checkboxID4">
+					<div class="td_content">
+						<img src="http://dem5xqcn61lj8.cloudfront.net/logos/EY.gif">
+					</div>
+				</label>
+			</td>
+
+			<td class="flight_code">
+				<label for="checkboxID4">
+					<div class="td_content">EY 873</div>
+				</label>
+			</td>
+
+			<td class="type">
+				<label for="checkboxID4">
+					<div class="td_content">
+						<div class="type_text"><img src="images/transportation.png" width="32" height="32"></div>
+					</div>
+				</label>
+
+			</td>
+			<td class="orig_dest">
+				<label for="checkboxID4">
+					<div class="td_content">Seoul / Abu Dhabi</div>
+				</label>
+			</td>
+
+			<td class="time">
+				<label for="checkboxID4">
+					<div class="td_content">12:40 AM - Mon Aug-17-2015</div>
+				</label>
+
+			</td>
+			<td class="aircraft_type">
+				<label for="checkboxID4">
+					<div class="td_content">Airbus A340-600</div>
+				</label>
+			</td>
+
+			<td class="gate">
+				<label for="checkboxID4">
+					<div class="td_content">N/A</div>
+				</label>
+			</td>
+			<td class="Info">
+				<label for="checkboxID4">
+					<div class="td_content"><a href="http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?id=586345378&airline=EY&flightNumber=873&departureDate=2015-08-17">Scheduled</a></p></div>
+				</label>
+			</td>
+		</tr>
+		<!--5-->
+		<tr class="dep">
+			<td class="airline">
+				<label for="checkboxID5">
+					<div class="td_content">Asiana Airlines</div>
+				</label>
+			</td>
+
+			<td class="airline_logo">
+				<label for="checkboxID5">
+					<div class="td_content">
+						<img src="http://dem5xqcn61lj8.cloudfront.net/logos/OZ.gif">
+					</div>
+				</label>
+			</td>
+
+			<td class="flight_code">
+				<label for="checkboxID5">
+					<div class="td_content">OZ 6971</div>
+				</label>
+			</td>
+
+			<td class="type">
+				<label for="checkboxID5">
+					<div class="td_content">
+						<div class="type_text"><img src="images/transportation.png" width="32" height="32"></div>
+					</div>
+				</label>
+
+			</td>
+			<td class="orig_dest">
+				<label for="checkboxID5">
+					<div class="td_content">Seoul / Abu Dhabi</div>
+				</label>
+			</td>
+
+			<td class="time">
+				<label for="checkboxID5">
+					<div class="td_content">12:40 AM - Mon Aug-17-2015</div>
+				</label>
+
+			</td>
+			<td class="aircraft_type">
+				<label for="checkboxID5">
+					<div class="td_content">Airbus A340-600</div>
+				</label>
+			</td>
+
+			<td class="gate">
+				<label for="checkboxID5">
+					<div class="td_content">N/A</div>
+				</label>
+			</td>
+			<td class="Info">
+				<label for="checkboxID5">
+					<div class="td_content"><a href="http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?id=586345378&airline=OZ&flightNumber=6971&departureDate=2015-08-17">Scheduled</a></p></div>
+				</label>
+			</td>
+		</tr>
+		<!--6-->
+		<tr class="dep">
+			<td class="airline">
+				<label for="checkboxID6">
+					<div class="td_content">South African Airways</div>
+				</label>
+			</td>
+
+			<td class="airline_logo">
+				<label for="checkboxID6">
+					<div class="td_content">
+						<img src="http://dem5xqcn61lj8.cloudfront.net/logos/SA2.gif">
+					</div>
+				</label>
+			</td>
+
+			<td class="flight_code">
+				<label for="checkboxID6">
+					<div class="td_content">SA 2301</div>
+				</label>
+			</td>
+
+			<td class="type">
+				<label for="checkboxID6">
+					<div class="td_content">
+						<div class="type_text"><img src="images/transportation.png" width="32" height="32"></div>
+					</div>
+				</label>
+
+			</td>
+			<td class="orig_dest">
+				<label for="checkboxID6">
+					<div class="td_content">Seoul / Abu Dhabi</div>
+				</label>
+			</td>
+
+			<td class="time">
+				<label for="checkboxID6">
+					<div class="td_content">12:40 AM - Mon Aug-17-2015</div>
+				</label>
+
+			</td>
+			<td class="aircraft_type">
+				<label for="checkboxID6">
+					<div class="td_content">Airbus A340-600</div>
+				</label>
+			</td>
+
+			<td class="gate">
+				<label for="checkboxID6">
+					<div class="td_content">N/A</div>
+				</label>
+			</td>
+			<td class="Info">
+				<label for="checkboxID6">
+					<div class="td_content"><a href="http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?id=586345378&airline=SA&flightNumber=2301&departureDate=2015-08-17">Scheduled</a></p></div>
+				</label>
+			</td>
+		</tr>
+		<!--7-->
+		<tr class="dep">
+			<td class="airline">
+				<label for="checkboxID7">
+					<div class="td_content">Korean Air</div>
+				</label>
+			</td>
+
+			<td class="airline_logo">
+				<label for="checkboxID7">
+					<div class="td_content">
+						<img src="http://dem5xqcn61lj8.cloudfront.net/logos/KE.gif">
+					</div>
+				</label>
+			</td>
+
+			<td class="flight_code">
+				<label for="checkboxID7">
+					<div class="td_content">KE 7901</div>
+				</label>
+			</td>
+
+			<td class="type">
+				<label for="checkboxID7">
+					<div class="td_content">
+						<div class="type_text"><img src="images/transportation.png" width="32" height="32"></div>
+					</div>
+				</label>
+
+			</td>
+			<td class="orig_dest">
+				<label for="checkboxID7">
+					<div class="td_content">Seoul / Abu Dhabi</div>
+				</label>
+			</td>
+
+			<td class="time">
+				<label for="checkboxID7">
+					<div class="td_content">12:40 AM - Mon Aug-17-2015</div>
+				</label>
+
+			</td>
+			<td class="aircraft_type">
+				<label for="checkboxID7">
+					<div class="td_content">Airbus A340-600</div>
+				</label>
+			</td>
+
+			<td class="gate">
+				<label for="checkboxID7">
+					<div class="td_content">N/A</div>
+				</label>
+			</td>
+			<td class="Info">
+				<label for="checkboxID7">
+					<div class="td_content"><a href="http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?id=586345378&airline=KE&flightNumber=7901&departureDate=2015-08-17">Scheduled</a></p></div>
+				</label>
+			</td>
+		</tr>
+		<!--8-->
+		<tr class="dep">
+			<td class="airline">
+				<label for="checkboxID8">
+					<div class="td_content">Air Seychelles</div>
+				</label>
+			</td>
+
+			<td class="airline_logo">
+				<label for="checkboxID8">
+					<div class="td_content">
+						<img src="http://dem5xqcn61lj8.cloudfront.net/logos/HM.gif">
+					</div>
+				</label>
+			</td>
+
+			<td class="flight_code">
+				<label for="checkboxID8">
+					<div class="td_content">HM 5377</div>
+				</label>
+			</td>
+
+			<td class="type">
+				<label for="checkboxID8">
+					<div class="td_content">
+						<div class="type_text"><img src="images/transportation.png" width="32" height="32"></div>
+					</div>
+				</label>
+
+			</td>
+			<td class="orig_dest">
+				<label for="checkboxID8">
+					<div class="td_content">Seoul / Abu Dhabi</div>
+				</label>
+			</td>
+
+			<td class="time">
+				<label for="checkboxID8">
+					<div class="td_content">12:40 AM - Mon Aug-17-2015</div>
+				</label>
+
+			</td>
+			<td class="aircraft_type">
+				<label for="checkboxID8">
+					<div class="td_content">Airbus A340-600</div>
+				</label>
+			</td>
+
+			<td class="gate">
+				<label for="checkboxID8">
+					<div class="td_content">N/A</div>
+				</label>
+			</td>
+			<td class="Info">
+				<label for="checkboxID8">
+					<div class="td_content"><a href="http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?id=586345378&airline=HM&flightNumber=5377&departureDate=2015-08-17">Scheduled</a></p></div>
+				</label>
+			</td>
+		</tr>
+		<!--9-->
+		<tr class="dep">
+			<td class="airline">
+				<label for="checkboxID9">
+					<div class="td_content">Alitalia</div>
+				</label>
+			</td>
+
+			<td class="airline_logo">
+				<label for="checkboxID9">
+					<div class="td_content">
+						<img src="http://dem5xqcn61lj8.cloudfront.net/logos/AZ.gif">
+					</div>
+				</label>
+			</td>
+
+			<td class="flight_code">
+				<label for="checkboxID9">
+					<div class="td_content">AZ 5689</div>
+				</label>
+			</td>
+
+			<td class="type">
+				<label for="checkboxID9">
+					<div class="td_content">
+						<div class="type_text"><img src="images/transportation.png" width="32" height="32"></div>
+					</div>
+				</label>
+
+			</td>
+			<td class="orig_dest">
+				<label for="checkboxID9">
+					<div class="td_content">Seoul / Abu Dhabi</div>
+				</label>
+			</td>
+
+			<td class="time">
+				<label for="checkboxID9">
+					<div class="td_content">12:40 AM - Mon Aug-17-2015</div>
+				</label>
+
+			</td>
+			<td class="aircraft_type">
+				<label for="checkboxID9">
+					<div class="td_content">Airbus A340-600</div>
+				</label>
+			</td>
+
+			<td class="gate">
+				<label for="checkboxID9">
+					<div class="td_content">N/A</div>
+				</label>
+			</td>
+			<td class="Info">
+				<label for="checkboxID9">
+					<div class="td_content"><a href="http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?id=586345378&airline=AZ&flightNumber=5689&departureDate=2015-08-17">Scheduled</a></p></div>
+				</label>
+			</td>
+		</tr>
+		<!--10-->
+		<tr class="dep">
+			<td class="airline">
+				<label for="checkboxID10">
+					<div class="td_content">Air Berlin</div>
+				</label>
+			</td>
+
+			<td class="airline_logo">
+				<label for="checkboxID10">
+					<div class="td_content">
+						<img src="http://dem5xqcn61lj8.cloudfront.net/logos/AB2.gif">
+					</div>
+				</label>
+			</td>
+
+			<td class="flight_code">
+				<label for="checkboxID10">
+					<div class="td_content">AB 4015</div>
+				</label>
+			</td>
+
+			<td class="type">
+				<label for="checkboxID10">
+					<div class="td_content">
+						<div class="type_text"><img src="images/transportation.png" width="32" height="32"></div>
+					</div>
+				</label>
+
+			</td>
+			<td class="orig_dest">
+				<label for="checkboxID10">
+					<div class="td_content">Seoul / Abu Dhabi</div>
+				</label>
+			</td>
+
+			<td class="time">
+				<label for="checkboxID10">
+					<div class="td_content">12:40 AM - Mon Aug-17-2015</div>
+				</label>
+
+			</td>
+			<td class="aircraft_type">
+				<label for="checkboxID10">
+					<div class="td_content">Airbus A340-600</div>
+				</label>
+			</td>
+
+			<td class="gate">
+				<label for="checkboxID10">
+					<div class="td_content">N/A</div>
+				</label>
+			</td>
+			<td class="Info">
+				<label for="checkboxID10">
+					<div class="td_content"><a href="http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?id=586345378&airline=AB&flightNumber=4015&departureDate=2015-08-17">Scheduled</a></p></div>
+				</label>
+			</td>
+		</tr>
+<!--11-->
+		<tr class="arr">
+			<td class="airline">
+				<label for="checkboxID11">
+					<div class="td_content">Korean Air</div>
+				</label>
+			</td>
+
+			<td class="airline_logo">
+				<label for="checkboxID11">
+					<div class="td_content">
+						<img src="http://dem5xqcn61lj8.cloudfront.net/logos/KE.gif">
+					</div>
+				</label>
+			</td>
+
+			<td class="flight_code">
+				<label for="checkboxID11">
+					<div class="td_content">KE 854</div>
+				</label>
+			</td>
+
+			<td class="type">
+				<label for="checkboxID11">
+					<div class="td_content">
+						<div class="type_text"><img src="images/landing.png" width="32" height="32"></div>
+					</div>
+				</label>
+
+			</td>
+			<td class="orig_dest">
+				<label for="checkboxID11">
+					<div class="td_content">Seoul / Singapore</div>
+				</label>
+			</td>
+
+			<td class="time">
+				<label for="checkboxID11">
+					<div class="td_content">12:15 AM - Mon Aug-17-2015</div>
+				</label>
+
+			</td>
+			<td class="aircraft_type">
+				<label for="checkboxID11">
+					<div class="td_content">Airbus A330-300</div>
+				</label>
+			</td>
+
+			<td class="gate">
+				<label for="checkboxID11">
+					<div class="td_content">N/A</div>
+				</label>
+			</td>
+			<td class="Info">
+				<label for="checkboxID11">
+					<div class="td_content"><a href="http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?id=586379493&airline=SQ&flightNumber=603&departureDate=2015-08-17">Scheduled</a></p></div>
+				</label>
+			</td>
+		</tr>
+<!--12-->
+		<tr class="arr">
+			<td class="airline">
+				<label for="checkboxID12">
+					<div class="td_content">China Southern Airlines</div>
+				</label>
+			</td>
+
+			<td class="airline_logo">
+				<label for="checkboxID12">
+					<div class="td_content">
+						<img src="http://dem5xqcn61lj8.cloudfront.net/logos/CZ.gif">
+					</div>
+				</label>
+			</td>
+
+			<td class="flight_code">
+				<label for="checkboxID12">
+					<div class="td_content">CZ 4505</div>
+				</label>
+			</td>
+
+			<td class="type">
+				<label for="checkboxID12">
+					<div class="td_content">
+						<div class="type_text"><img src="images/landing.png" width="32" height="32"></div>
+					</div>
+				</label>
+			<td class="orig_dest">
+				<label for="checkboxID12">
+					<div class="td_content">Beijing / Seoul</div>
+				</label>
+			</td>
+
+			<td class="time">
+				<label for="checkboxID12">
+					<div class="td_content">12:20 AM - Tue Aug-18-2015</div>
+				</label>
+
+			</td>
+			<td class="aircraft_type">
+				<label for="checkboxID12">
+					<div class="td_content">Airbus A330-300</div>
+				</label>
+			</td>
+
+			<td class="gate">
+				<label for="checkboxID12">
+					<div class="td_content">N/A</div>
+				</label>
+			</td>
+			<td class="Info">
+				<label for="checkboxID12">
+					<div class="td_content"><a href="http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?id=586357877&airline=CZ&flightNumber=4505&departureDate=2015-08-17">Scheduled</a></p></div>
+				</label>
+			</td>
+		</tr>
+<!--13-->
+		<tr class="arr">
+			<td class="airline">
+				<label for="checkboxID13">
+					<div class="td_content">Polar Air Cargo</div>
+				</label>
+			</td>
+
+			<td class="airline_logo">
+				<label for="checkboxID13">
+					<div class="td_content">
+						<img src="http://dem5xqcn61lj8.cloudfront.net/logos/PO.gif">
+					</div>
+				</label>
+			</td>
+
+			<td class="flight_code">
+				<label for="checkboxID13">
+					<div class="td_content">PO 213</div>
+				</label>
+			</td>
+
+			<td class="type">
+				<label for="checkboxID13">
+					<div class="td_content">
+						<div class="type_text"><img src="images/landing.png" width="32" height="32"></div>
+					</div>
+				</label>
+<td class="orig_dest">
+				<label for="checkboxID13">
+					<div class="td_content">Tokyo / Seoul</div>
+				</label>
+			</td>
+
+			<td class="time">
+				<label for="checkboxID13">
+					<div class="td_content">12:35 AM - Tue Aug-18-2015</div>
+				</label>
+
+			</td>
+			<td class="aircraft_type">
+				<label for="checkboxID13">
+					<div class="td_content">Boeing 747-8F Freighter</div>
+				</label>
+			</td>
+
+			<td class="gate">
+				<label for="checkboxID13">
+					<div class="td_content">N/A</div>
+				</label>
+			</td>
+			<td class="Info">
+				<label for="checkboxID13">
+					<div class="td_content"><a href="http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?id=585874762&airline=PO&flightNumber=213&departureDate=2015-08-17">Scheduled</a></p></div>
+				</label>
+			</td>
+		</tr>
+<!--14-->
+		<tr class="arr">
+			<td class="airline">
+				<label for="checkboxID14">
+					<div class="td_content">Korean Air</div>
+				</label>
+			</td>
+
+			<td class="airline_logo">
+				<label for="checkboxID14">
+					<div class="td_content">
+						<img src="http://dem5xqcn61lj8.cloudfront.net/logos/KE.gif">
+					</div>
+				</label>
+			</td>
+
+			<td class="flight_code">
+				<label for="checkboxID14">
+					<div class="td_content">KE 594</div>
+				</label>
+			</td>
+
+			<td class="type">
+				<label for="checkboxID14">
+					<div class="td_content">
+						<div class="type_text"><img src="images/landing.png" width="32" height="32"></div>
+					</div>
+				</label>
+
+			<td class="orig_dest">
+				<label for="checkboxID14">
+					<div class="td_content">Frankfurt / Seoul</div>
+				</label>
+			</td>
+
+			<td class="time">
+				<label for="checkboxID14">
+					<div class="td_content">1:50 AM - Tue Aug-18-2015</div>
+				</label>
+
+			</td>
+			<td class="aircraft_type">
+				<label for="checkboxID14">
+					<div class="td_content">Boeing 777-200F Freighter (Scheduled)</div>
+				</label>
+			</td>
+
+			<td class="gate">
+				<label for="checkboxID14">
+					<div class="td_content">N/A</div>
+				</label>
+			</td>
+			<td class="Info">
+				<label for="checkboxID14">
+					<div class="td_content"><a href="http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?id=586357733&airline=KE&flightNumber=594&departureDate=2015-08-17">Scheduled</a></p></div>
+				</label>
+			</td>
+		</tr>
+<!--15-->
+		<tr class="arr">
+			<td class="airline">
+				<label for="checkboxID15">
+					<div class="td_content">Polar Air Cargo</div>
+				</label>
+			</td>
+
+			<td class="airline_logo">
+				<label for="checkboxID15">
+					<div class="td_content">
+						<img src="http://dem5xqcn61lj8.cloudfront.net/logos/PO.gif">
+					</div>
+				</label>
+			</td>
+
+			<td class="flight_code">
+				<label for="checkboxID15">
+					<div class="td_content">PO 224</div>
+				</label>
+			</td>
+
+			<td class="type">
+				<label for="checkboxID15">
+					<div class="td_content">
+						<div class="type_text"><img src="images/landing.png" width="32" height="32"></div>
+					</div>
+				</label>
+
+			</td>
+			<td class="orig_dest">
+				<label for="checkboxID15">
+					<div class="td_content">Nagoya / Seoul</div>
+				</label>
+			</td>
+
+			<td class="time">
+				<label for="checkboxID15">
+					<div class="td_content">3:50 AM - Tue Aug-18-2015</div>
+				</label>
+
+			</td>
+			<td class="aircraft_type">
+				<label for="checkboxID15">
+					<div class="td_content">Boeing 767-300 Freighter (Scheduled)</div>
+				</label>
+			</td>
+
+			<td class="gate">
+				<label for="checkboxID15">
+					<div class="td_content">N/A</div>
+				</label>
+			</td>
+			<td class="Info">
+				<label for="checkboxID15">
+					<div class="td_content"><a href="http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?id=586372927&airline=PO&flightNumber=224&departureDate=2015-08-18">Scheduled</a></p></div>
+				</label>
+			</td>
+		</tr>
+<!--16-->
+		<tr class="arr">
+			<td class="airline">
+				<label for="checkboxID16">
+					<div class="td_content">Korean Air</div>
+				</label>
+			</td>
+
+			<td class="airline_logo">
+				<label for="checkboxID16">
+					<div class="td_content">
+						<img src="http://dem5xqcn61lj8.cloudfront.net/logos/KE.gif">
+					</div>
+				</label>
+			</td>
+
+			<td class="flight_code">
+				<label for="checkboxID16">
+					<div class="td_content">KE 86</div>
+				</label>
+			</td>
+
+			<td class="type">
+				<label for="checkboxID16">
+					<div class="td_content">
+						<div class="type_text"><img src="images/landing.png" width="32" height="32"></div>
+					</div>
+				</label>
+
+			</td>
+			<td class="orig_dest">
+				<label for="checkboxID16">
+					<div class="td_content">New York / Seoul</div>
+				</label>
+			</td>
+
+			<td class="time">
+				<label for="checkboxID16">
+					<div class="td_content">4:10 AM - Tue Aug-18-2015</div>
+				</label>
+
+			</td>
+			<td class="aircraft_type">
+				<label for="checkboxID16">
+					<div class="td_content">Airbus A380-800 Passenger</div>
+				</label>
+			</td>
+
+			<td class="gate">
+				<label for="checkboxID16">
+					<div class="td_content">N/A</div>
+				</label>
+			</td>
+			<td class="Info">
+				<label for="checkboxID16">
+					<div class="td_content"><a href="http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?id=586357692&airline=KE&flightNumber=86&departureDate=2015-08-17">Scheduled</a></p></div>
+				</label>
+			</td>
+		</tr>
+<!--17-->
+		<tr class="arr">
+			<td class="airline">
+				<label for="checkboxID17">
+					<div class="td_content">Delta Air Lines</div>
+				</label>
+			</td>
+
+			<td class="airline_logo">
+				<label for="checkboxID17">
+					<div class="td_content">
+						<img src="http://dem5xqcn61lj8.cloudfront.net/logos/DL.gif">
+					</div>
+				</label>
+			</td>
+
+			<td class="flight_code">
+				<label for="checkboxID17">
+					<div class="td_content">DL 1001</div>
+				</label>
+			</td>
+
+			<td class="type">
+				<label for="checkboxID17">
+					<div class="td_content">
+						<div class="type_text"><img src="images/landing.png" width="32" height="32"></div>
+					</div>
+				</label>
+			</td>
+			<td class="orig_dest">
+				<label for="checkboxID17">
+					<div class="td_content">New York / Seoul</div>
+				</label>
+			</td>
+
+			<td class="time">
+				<label for="checkboxID17">
+					<div class="td_content">4:10 AM - Tue Aug-18-2015</div>
+				</label>
+
+			</td>
+			<td class="aircraft_type">
+				<label for="checkboxID17">
+					<div class="td_content">Airbus A380-800 Passenger</div>
+				</label>
+			</td>
+
+			<td class="gate">
+				<label for="checkboxID17">
+					<div class="td_content">N/A</div>
+				</label>
+			</td>
+			<td class="Info">
+				<label for="checkboxID17">
+					<div class="td_content"><a href="http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?id=586357692&airline=DL&flightNumber=1001&departureDate=2015-08-17">Scheduled</a></p></div>
+				</label>
+			</td>
+		</tr>
+<!--18-->
+		<tr class="arr">
+			<td class="airline">
+				<label for="checkboxID18">
+					<div class="td_content">Korean Air</div>
+				</label>
+			</td>
+
+			<td class="airline_logo">
+				<label for="checkboxID18">
+					<div class="td_content">
+						<img src="http://dem5xqcn61lj8.cloudfront.net/logos/KE.gif">
+					</div>
+				</label>
+			</td>
+
+			<td class="flight_code">
+				<label for="checkboxID18">
+					<div class="td_content">KE 12</div>
+				</label>
+			</td>
+
+			<td class="type">
+				<label for="checkboxID18">
+					<div class="td_content">
+						<div class="type_text"><img src="images/landing.png" width="32" height="32"></div>
+					</div>
+				</label>
+
+			</td>
+			<td class="orig_dest">
+				<label for="checkboxID18">
+					<div class="td_content">Los Angeles / Seoul</div>
+				</label>
+			</td>
+
+			<td class="time">
+				<label for="checkboxID18">
+					<div class="td_content">4:15 AM - Tue Aug-18-2015</div>
+				</label>
+
+			</td>
+			<td class="aircraft_type">
+				<label for="checkboxID18">
+					<div class="td_content">Airbus A330-300</div>
+				</label>
+			</td>
+
+			<td class="gate">
+				<label for="checkboxID18">
+					<div class="td_content">N/A</div>
+				</label>
+			</td>
+			<td class="Info">
+				<label for="checkboxID18">
+					<div class="td_content"><a href="http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?id=585860692&airline=KE&flightNumber=12&departureDate=2015-08-16">Scheduled</a></p></div>
+				</label>
+			</td>
+		</tr>
+<!--19-->
+		<tr class="arr">
+			<td class="airline">
+				<label for="checkboxID19">
+					<div class="td_content">LAN Airlines</div>
+				</label>
+			</td>
+
+			<td class="airline_logo">
+				<label for="checkboxID19">
+					<div class="td_content">
+						<img src="http://dem5xqcn61lj8.cloudfront.net/logos/LA.gif">
+					</div>
+				</label>
+			</td>
+
+			<td class="flight_code">
+				<label for="checkboxID19">
+					<div class="td_content">LA 5010</div>
+				</label>
+			</td>
+
+			<td class="type">
+				<label for="checkboxID19">
+					<div class="td_content">
+						<div class="type_text"><img src="images/landing.png" width="32" height="32"></div>
+					</div>
+				</label>
+			</td>
+			<td class="orig_dest">
+				<label for="checkboxID19">
+					<div class="td_content">Los Angeles / Seoul</div>
+				</label>
+			</td>
+
+			<td class="time">
+				<label for="checkboxID19">
+					<div class="td_content">4:15 AM - Tue Aug-18-2015</div>
+				</label>
+
+			</td>
+			<td class="aircraft_type">
+				<label for="checkboxID19">
+					<div class="td_content">Airbus A330-300</div>
+				</label>
+			</td>
+
+			<td class="gate">
+				<label for="checkboxID19">
+					<div class="td_content">N/A</div>
+				</label>
+			</td>
+			<td class="Info">
+				<label for="checkboxID19">
+					<div class="td_content"><a href="http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?id=585860692&airline=LA&flightNumber=5010&departureDate=2015-08-16">Scheduled</a></p></div>
+				</label>
+			</td>
+		</tr>
+<!--20-->
+		<tr class="arr">
+			<td class="airline">
+				<label for="checkboxID20">
+					<div class="td_content">Aeromexico</div>
+				</label>
+			</td>
+
+			<td class="airline_logo">
+				<label for="checkboxID20">
+					<div class="td_content">
+						<img src="http://dem5xqcn61lj8.cloudfront.net/logos/AM.gif">
+					</div>
+				</label>
+			</td>
+
+			<td class="flight_code">
+				<label for="checkboxID20">
+					<div class="td_content">AM 6701</div>
+				</label>
+			</td>
+
+			<td class="type">
+				<label for="checkboxID20">
+					<div class="td_content">
+						<div class="type_text"><img src="images/landing.png" width="32" height="32"></div>
+					</div>
+				</label>
+			</td>
+			<td class="orig_dest">
+				<label for="checkboxID20">
+					<div class="td_content">Los Angeles / Seoul</div>
+				</label>
+			</td>
+
+			<td class="time">
+				<label for="checkboxID20">
+					<div class="td_content">4:15 AM - Tue Aug-18-2015</div>
+				</label>
+
+			</td>
+			<td class="aircraft_type">
+				<label for="checkboxID20">
+					<div class="td_content">Airbus A330-300</div>
+				</label>
+			</td>
+
+			<td class="gate">
+				<label for="checkboxID20">
+					<div class="td_content">N/A</div>
+				</label>
+			</td>
+			<td class="Info">
+				<label for="checkboxID20">
+					<div class="td_content"><a href="http://www.flightstats.com/go/FlightStatus/flightStatusByFlight.do?id=585860692&airline=AM&flightNumber=6701&departureDate=2015-08-16">Scheduled</a></p></div>
+				</label>
+			</td>
+		</tr>
+	</tbody>
+</table>
+
+</div> <!--class table_wrapper-->
+
+<input type="checkbox" class="popup-checkbox" id="checkboxID1">
+<input type="checkbox" class="popup-checkbox" id="checkboxID2">
+<input type="checkbox" class="popup-checkbox" id="checkboxID3">
+<input type="checkbox" class="popup-checkbox" id="checkboxID4">
+<input type="checkbox" class="popup-checkbox" id="checkboxID5">
+<input type="checkbox" class="popup-checkbox" id="checkboxID6">
+<input type="checkbox" class="popup-checkbox" id="checkboxID7">
+<input type="checkbox" class="popup-checkbox" id="checkboxID8">
+<input type="checkbox" class="popup-checkbox" id="checkboxID9">
+<input type="checkbox" class="popup-checkbox" id="checkboxID10">
+<input type="checkbox" class="popup-checkbox" id="checkboxID11">
+<input type="checkbox" class="popup-checkbox" id="checkboxID12">
+<input type="checkbox" class="popup-checkbox" id="checkboxID13">
+<input type="checkbox" class="popup-checkbox" id="checkboxID14">
+<input type="checkbox" class="popup-checkbox" id="checkboxID15">
+<input type="checkbox" class="popup-checkbox" id="checkboxID16">
+<input type="checkbox" class="popup-checkbox" id="checkboxID17">
+<input type="checkbox" class="popup-checkbox" id="checkboxID18">
+<input type="checkbox" class="popup-checkbox" id="checkboxID19">
+<input type="checkbox" class="popup-checkbox" id="checkboxID20">
+
+<!--Это те самые блоки, которые появляются, когда ты нажимаешь на строку таблицы
+У всех имеется класс popup и он изначально стоит как display:none
+Когда нажимаем на строку таблицы срабатывает checkbox и с помощью CSS мы обрабатываем это событие и 
+делаем display:block
+-->
+
+<div class="popup" id="popupID1">
+	<div class="popup-close">
+		<label for="checkboxID1">close</label>
+	</div>
+
+	<div class="popup-content">
+		<ul>
+			<li>SQ 603 Flight Information</li>
+			<li>Route: From (ICN) Seoul, KR to (SIN) Singapore, SG</li>
+			<li>Duration: 6h 20m</li>
+			<li>Equipment: Airbus A330-300 (Scheduled)</li>
+			<li>On-Time Rating: 4,4 of 5</li>
+			<li>Codeshares with (VA) Virgin Australia 5405 (OZ) Asiana Airlines 6783</li>
+		</ul>
+	</div>
+</div>
+
+<div class="popup" id="popupID2">
+	<div class="popup-close">
+		<label for="checkboxID2">close</label>
+	</div>
+
+	<div class="popup-content">
+		<ul>
+			<li>VA 5405 Flight Information</li>
+			<li>Route:	 	From (ICN) Seoul, KR to (SIN) Singapore, SG</li>
+			<li>Duration:	 	6h 20m</li>
+			<li>Equipment:	 	Airbus A330-300 (Scheduled)	</li>
+			<li>On-Time Rating:	 	4,4 of 5</li>
+			<li>Codeshares with (OZ) Asiana Airlines 6783</li>
+		</ul>
+	</div>
+</div>
+
+<div class="popup" id="popupID3">
+	<div class="popup-close">
+		<label for="checkboxID3">close</label>
+	</div>
+
+	<div class="popup-content">
+		<ul>
+			<li>OZ 6783 Flight Information</li>
+			<li>Route:	 	From (ICN) Seoul, KR to (SIN) Singapore, SG</li>
+			<li>Duration:	 	6h 20m</li>
+			<li>Equipment:	 	Airbus A330-300 (Scheduled)	</li>
+			<li>On-Time Rating:	 	4,4 of 5</li>
+			<li>Codeshares with (VA) Virgin Australia 5405</li>
+		</ul>
+	</div>
+</div>
+
+<div class="popup" id="popupID4">
+	<div class="popup-close">
+		<label for="checkboxID4">close</label>
+	</div>
+
+	<div class="popup-content">
+		<ul>
+			<li>EY 873 Flight Information</li>
+			<li>Origin: Copenhagen</li>
+			<li>Status: landed</li>
+			<li>Main Flight(Code Sharing): AB 8543</li>
+			<li>Route: From (ICN) Seoul, KR to (AUH) Abu Dhabi, AE</li>
+			<li>Duration: 10h 05m</li>
+			<li>Equipment: Airbus A340-600 (Scheduled)</li>
+			<li>On-Time Rating: 3,5 of 5</li>
+			<li>Codeshares with (OZ) Asiana Airlines 6971 (SA) South African Airways 2301 (KE) Korean Air 7901 (JU) Air Serbia 8615(HM) Air Seychelles 5377 (HG) NIKI 4015 (AZ) Alitalia 5689 (AB) Air Berlin 4015</li>
+		</ul>
+	</div>
+</div>
+
+<div class="popup" id="popupID5">
+	<div class="popup-close">
+		<label for="checkboxID5">close</label>
+	</div>
+
+	<div class="popup-content">
+		<ul>
+			<li>Flight number AB 8043</li>
+			<li>Origin: Copenhagen</li>
+			<li>Status: landed</li>
+			<li>Main Flight(Code Sharing): AB 8543</li>
+			<li>Route: From (ICN) Seoul, KR to (AUH) Abu Dhabi, AE</li>
+			<li>Duration: 10h 05m</li>
+			<li>Equipment: Airbus A340-600 (Scheduled)</li>
+			<li>On-Time Rating: 3,5 of 5</li>
+			<li>Codeshares: This flight marketed as a codeshare flight by the following airlines:
+ 	(SA) South African Airways 2301
+ 	(KE) Korean Air 7901
+ 	(JU) Air Serbia 8615
+ 	(HM) Air Seychelles 5377
+ 	(HG) NIKI 4015
+ 	(AZ) Alitalia 5689
+ 	(AB) Air Berlin 4015</li>
+		</ul>
+	</div>
+</div>
+
+<div class="popup" id="popupID6">
+	<div class="popup-close">
+		<label for="checkboxID6">close</label>
+	</div>
+
+	<div class="popup-content">
+		<ul>
+			<li>SA 2301 Flight Information</li>
+			<li>Origin: Copenhagen</li>
+			<li>Status: landed</li>
+			<li>Main Flight(Code Sharing): AB 8543</li>
+			<li>Route: From (ICN) Seoul, KR to (AUH) Abu Dhabi, AE</li>
+			<li>Duration: 10h 05m</li>
+			<li>Equipment: Airbus A340-600 (Scheduled)</li>
+			<li>On-Time Rating: 3,5 of 5</li>
+			<li>Codeshares:	 	This flight marketed as a codeshare flight by the following airlines:
+ 	(OZ) Asiana Airlines 6971
+ 	(KE) Korean Air 7901
+ 	(JU) Air Serbia 8615
+ 	(HM) Air Seychelles 5377
+ 	(HG) NIKI 4015
+ 	(AZ) Alitalia 5689
+ 	(AB) Air Berlin 4015</li>
+		</ul>
+	</div>
+</div>
+
+
+<div class="popup" id="popupID7">
+	<div class="popup-close">
+		<label for="checkboxID7">close</label>
+	</div>
+
+	<div class="popup-content">
+		<ul>
+			<li>KE 7901 Flight Information</li>
+			<li>Origin: Copenhagen</li>
+			<li>Status: landed</li>
+			<li>Main Flight(Code Sharing): AB 8543</li>
+			<li>Route: From (ICN) Seoul, KR to (AUH) Abu Dhabi, AE</li>
+			<li>Duration: 10h 05m</li>
+			<li>Equipment: Airbus A340-600 (Scheduled)</li>
+			<li>On-Time Rating: 3,5 of 5</li>
+			<li>Codeshares:	 	This flight marketed as a codeshare flight by the following airlines:
+ 	(OZ) Asiana Airlines 6971
+ 	(SA) South African Airways 2301
+ 	(JU) Air Serbia 8615
+ 	(HM) Air Seychelles 5377
+ 	(HG) NIKI 4015
+ 	(AZ) Alitalia 5689
+ 	(AB) Air Berlin 4015</li>
+		</ul>
+	</div>
+</div>
+
+<div class="popup" id="popupID8">
+	<div class="popup-close">
+		<label for="checkboxID8">close</label>
+	</div>
+
+	<div class="popup-content">
+		<ul>
+			<li>HM 5377 Flight Information</li>
+			<li>Origin: Copenhagen</li>
+			<li>Status: landed</li>
+			<li>Main Flight(Code Sharing): AB 8543</li>
+			<li>Route: From (ICN) Seoul, KR to (AUH) Abu Dhabi, AE</li>
+			<li>Duration: 10h 05m</li>
+			<li>Equipment: Airbus A340-600 (Scheduled)</li>
+			<li>On-Time Rating: 3,5 of 5</li>
+			<li>Codeshares:	 	This flight marketed as a codeshare flight by the following airlines:
+ 	(OZ) Asiana Airlines 6971
+ 	(SA) South African Airways 2301
+ 	(KE) Korean Air 7901
+ 	(JU) Air Serbia 8615
+ 	(HG) NIKI 4015
+ 	(AZ) Alitalia 5689
+ 	(AB) Air Berlin 4015</li>
+		</ul>
+	</div>
+</div>
+
+<div class="popup" id="popupID9">
+	<div class="popup-close">
+		<label for="checkboxID9">close</label>
+	</div>
+
+	<div class="popup-content">
+		<ul>
+			<li>AZ 5689 Flight Information</li>
+			<li>Origin: Copenhagen</li>
+			<li>Status: landed</li>
+			<li>Main Flight(Code Sharing): AB 8543</li>
+			<li>Route: From (ICN) Seoul, KR to (AUH) Abu Dhabi, AE</li>
+			<li>Duration: 10h 05m</li>
+			<li>Equipment: Airbus A340-600 (Scheduled)</li>
+			<li>On-Time Rating: 3,5 of 5</li>
+			<li>Codeshares:	 	This flight marketed as a codeshare flight by the following airlines:
+ 	(OZ) Asiana Airlines 6971
+ 	(SA) South African Airways 2301
+ 	(KE) Korean Air 7901
+ 	(JU) Air Serbia 8615
+ 	(HM) Air Seychelles 5377
+ 	(HG) NIKI 4015
+ 	(AB) Air Berlin 4015</li>
+		</ul>
+	</div>
+</div>
+
+<div class="popup" id="popupID10">
+	<div class="popup-close">
+		<label for="checkboxID10">close</label>
+	</div>
+
+	<div class="popup-content">
+		<ul>
+			<li>AB 4015 Flight Information</li>
+			<li>Origin: Copenhagen</li>
+			<li>Status: landed</li>
+			<li>Main Flight(Code Sharing): AB 8543</li>
+			<li>Route: From (ICN) Seoul, KR to (AUH) Abu Dhabi, AE</li>
+			<li>Duration: 10h 05m</li>
+			<li>Equipment: Airbus A340-600 (Scheduled)</li>
+			<li>On-Time Rating: 3,5 of 5</li>
+			<li>Codeshares:	 	This flight marketed as a codeshare flight by the following airlines:
+ 	(OZ) Asiana Airlines 6971
+ 	(SA) South African Airways 2301
+ 	(KE) Korean Air 7901
+ 	(JU) Air Serbia 8615
+ 	(HM) Air Seychelles 5377
+ 	(HG) NIKI 4015
+ 	(AZ) Alitalia 5689</li>
+		</ul>
+	</div>
+</div>
+
+
+<div class="popup" id="popupID11">
+	<div class="popup-close">
+		<label for="checkboxID11">close</label>
+	</div>
+
+	<div class="popup-content">
+		<ul>
+			<li>KE 854 Flight Information</li>
+			<li>Flight number 4U 7062</li>
+			<li>Origin: Hamburg</li>
+			<li>Status: landed</li>
+			<li>Main Flight(Code Sharing): YA 407</li>
+			<li>Route: From (PEK) Beijing, CN to (ICN) Seoul, KR</li>
+			<li>Duration: 2h 05m</li>
+			<li>Equipment: Airbus A330-300 (Scheduled)</li>
+			<li>On-Time Rating:	0,6 of 5</li>
+			<li>Codeshares:This flight marketed as a codeshare flight by the following airlines:
+ 	(CZ) China Southern Airlines 4505</li>
+		</ul>
+	</div>
+</div>
+
+
+<div class="popup" id="popupID12">
+	<div class="popup-close">
+		<label for="checkboxID12">close</label>
+	</div>
+
+	<div class="popup-content">
+		<ul>
+			<li>CZ 4505 Flight Information</li>
+			<li>Route: From (PEK) Beijing, CN to (ICN) Seoul, KR</li>
+			<li>Duration: 2h 05m</li>
+			<li>Equipment: Airbus A330-300</li>
+			<li>Main Flight(Code Sharing): YA 407</li>
+			<li>On-Time Rating:	0,6 of 5</li>
+		</ul>
+	</div>
+</div>
+<div class="popup" id="popupID13">
+	<div class="popup-close">
+		<label for="checkboxID13">close</label>
+	</div>
+
+	<div class="popup-content">
+		<ul>
+			<li>PO 213 Flight Information</li>
+			<li>Route: From (NRT) Tokyo, JP to (ICN) Seoul, KR</li>
+			<li>Duration: 2h 35m</li>
+			<li>Equipment: Boeing 747-8F Freighter</li>
+			<li>On-Time Rating:	2,4 of 5</li>
+		</ul>
+	</div>
+</div>
+<div class="popup" id="popupID14">
+	<div class="popup-close">
+		<label for="checkboxID14">close</label>
+	</div>
+
+	<div class="popup-content">
+		<ul>
+			<li>KE 594 Flight Information</li>
+			<li>Route: From (FRA) Frankfurt, DE to (ICN) Seoul, KR</li>
+			<li>Duration: 10h 30m</li>
+			<li>Equipment: Boeing 777-200F Freighter (Scheduled)</li>
+			<li>On-Time Rating:	3,3 of 5</li>
+		</ul>
+	</div>
+</div>
+
+
+
+<div class="popup" id="popupID15">
+	<div class="popup-close">
+		<label for="checkboxID15">close</label>
+	</div>
+
+	<div class="popup-content">
+		<ul>
+			<li>PO 224 Flight Information</li>
+			<li>Route: From (NGO) Nagoya, JP to (ICN) Seoul, KR</li>
+			<li>Duration: 1h 50m</li>
+			<li>Equipment: Boeing 767-300 Freighter (Scheduled)</li>
+			<li>On-Time Rating: 4,3 of 5</li>
+		</ul>
+	</div>
+</div>
+
+<div class="popup" id="popupID16">
+	<div class="popup-close">
+		<label for="checkboxID16">close</label>
+	</div>
+
+	<div class="popup-content">
+		<ul>
+			<li>KE 86 Flight Information</li>
+			<li>Route: From (JFK) New York, NY, US to (ICN) Seoul, KR</li>
+			<li>Duration: 14h 20m</li>
+			<li>Equipment: Airbus A380-800 Passenger</li>
+			<li>On-Time Rating: 4,8 of 5</li>
+			<li>Codeshares: This flight marketed as a codeshare flight by the following airlines:
+ 	(DL) Delta Air Lines 1001</li>
+		</ul>
+	</div>
+</div>
+
+<div class="popup" id="popupID17">
+	<div class="popup-close">
+		<label for="checkboxID17">close</label>
+	</div>
+
+	<div class="popup-content">
+		<ul>
+			<li>DL 1001 Flight Information</li>
+			<li>Route: From (JFK) New York, NY, US to (ICN) Seoul, KR</li>
+			<li>Duration: 14h 20m</li>
+			<li>Equipment: Airbus A380-800 Passenger</li>
+			<li>On-Time Rating: 4,8 of 5</li>
+		</ul>
+	</div>
+</div>
+
+<div class="popup" id="popupID18">
+	<div class="popup-close">
+		<label for="checkboxID18">close</label>
+	</div>
+
+	<div class="popup-content">
+		<ul>
+			<li>KE 12 Flight Information</li>
+			<li>Route: From (LAX) Los Angeles, CA, US to (ICN) Seoul, KR</li>
+			<li>Duration: 12h 45m</li>
+			<li>Equipment: Airbus A380-800 Passenger (Scheduled)</li>
+			<li>On-Time Rating:	4,3 of 5</li>
+			<li>Codeshares:	 	This flight marketed as a codeshare flight by the following airlines:
+ 	(LA) LAN Airlines 5010
+ 	(AM) Aeromexico 6701</li>
+		</ul>
+	</div>
+</div>
+
+<div class="popup" id="popupID19">
+	<div class="popup-close">
+		<label for="checkboxID19">close</label>
+	</div>
+
+	<div class="popup-content">
+		<ul>			
+			<li>LA 5010 Flight Information</li>
+			<li>Route: From (LAX) Los Angeles, CA, US to (ICN) Seoul, KR</li>
+			<li>Duration: 12h 45m</li>
+			<li>Equipment: Airbus A380-800 Passenger (Scheduled)</li>
+			<li>On-Time Rating:	4,3 of 5</li>
+			<li>This flight marketed as a codeshare flight by the following airlines:
+ 	(AM) Aeromexico 6701</li>
+		</ul>
+	</div>
+</div>
+
+<div class="popup" id="popupID20">
+	<div class="popup-close">
+		<label for="checkboxID20">close</label>
+	</div>
+
+	<div class="popup-content">
+		<ul>
+			<li>AM 6701 Flight Information</li>
+			<li>Route: From (LAX) Los Angeles, CA, US to (ICN) Seoul, KR</li>
+			<li>Duration: 12h 45m</li>
+			<li>Equipment: Airbus A380-800 Passenger (Scheduled)</li>
+			<li>On-Time Rating:	4,3 of 5</li>
+			<li>This flight marketed as a codeshare flight by the following airlines:
+ 	(LA) LAN Airlines 5010</li>
+		</ul>
+	</div>
+</div>
+</body>
+</html>
